@@ -5,16 +5,16 @@
 volatile CLOCK_SOURCE_T current_clock_source;
 
 void Check_Clock_Source(void) {
-	uint8_t clock_source = (RCC->CFGR >> 2) & 0x3;
-	uint8_t pll_source = (RCC->CFGR >> 16) & 0x1;
+	uint32_t clock_source = (RCC->CFGR >> 2) & 0x3;
+	uint32_t pll_source = (RCC->CFGR >> 16) & 0x1;
 
 	switch (clock_source) {
 		case 0x00:
-			current_clock_source = Clcok_Source_HSI;
+			current_clock_source = Clock_Source_HSI;
 			break;
 
 		case 0x01:
-			current_clock_source = Clcok_Source_HSE;
+			current_clock_source = Clock_Source_HSE;
 			break;
 
 		case 0x02:
