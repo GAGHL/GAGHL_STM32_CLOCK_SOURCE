@@ -1,0 +1,10 @@
+.setting/
+Core/
+Debug/
+Drivers/
+.cproject
+.mxproject
+.project
+GAGHL_STM32_CLOCK_SOURCE Debug.launch
+GAGHL_STM32_CLOCK_SOURCE.ioc
+STM32F303VCTX_FLASH.ld
