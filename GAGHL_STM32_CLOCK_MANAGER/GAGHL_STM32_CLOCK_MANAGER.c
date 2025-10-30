@@ -27,3 +27,30 @@ void Check_Clock_Source(void) {
 			break;
 	}
 }
+
+static inline void HSI_ON(void) {
+	RCC->CR |= RCC_CR_HSION;
+}
+
+static inline void HSE_ON(void) {
+	RCC->CR |= RCC_CR_HSEON;
+}
+
+static inline void PLL_ON(void) {
+	RCC->CR |= RCC_CR_PLLON;
+}
+
+//-------------------------------------------------
+static inline void HSI_ON_AND_STABLAZITION(void) {
+	
+}
+
+static inline void HSE_ON_AND_STABLAZITION(void) {
+	RCC->CR |= RCC_CR_HSEON;
+	while (!(RCC->CR & RCC_CR_HSERDY));
+}
+
+static inline void PLL_ON_AND_STABLAZITION(void) {
+	RCC->CR |= RCC_CR_PLLON;
+	while (!(RCC->CR & RCC_CR_PLLRDY));
+}
