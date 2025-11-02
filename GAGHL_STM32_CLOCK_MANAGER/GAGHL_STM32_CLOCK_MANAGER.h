@@ -2,7 +2,7 @@
 #define GAGHL_STM32_CLOCK_MANAGER_H
 
 #include <stdint.h>
-#include <main.h>
+#include <stm32f10x.h>
 
 typedef enum {
 	Clock_Source_is_HSI = 0,
@@ -23,21 +23,21 @@ static inline void RCC_Enable_HSI(void) { RCC->CR |= RCC_CR_HSION; }
 static inline void RCC_Enable_HSE(void) { RCC->CR |= RCC_CR_HSEON; }
 static inline void RCC_Enable_PLL(void) { RCC->CR |= RCC_CR_PLLON; }
 
-static inline void RCC_Set_PLL_Multiplier_To_2(void)  { RCC->CFGR |= RCC_CFGR_PLLMUL2;  }
-static inline void RCC_Set_PLL_Multiplier_To_3(void)  { RCC->CFGR |= RCC_CFGR_PLLMUL3;  }
-static inline void RCC_Set_PLL_Multiplier_To_4(void)  { RCC->CFGR |= RCC_CFGR_PLLMUL4;  }
-static inline void RCC_Set_PLL_Multiplier_To_5(void)  { RCC->CFGR |= RCC_CFGR_PLLMUL5;  }
-static inline void RCC_Set_PLL_Multiplier_To_6(void)  { RCC->CFGR |= RCC_CFGR_PLLMUL6;  }
-static inline void RCC_Set_PLL_Multiplier_To_7(void)  { RCC->CFGR |= RCC_CFGR_PLLMUL7;  }
-static inline void RCC_Set_PLL_Multiplier_To_8(void)  { RCC->CFGR |= RCC_CFGR_PLLMUL8;  }
-static inline void RCC_Set_PLL_Multiplier_To_9(void)  { RCC->CFGR |= RCC_CFGR_PLLMUL9;  }
-static inline void RCC_Set_PLL_Multiplier_To_10(void) { RCC->CFGR |= RCC_CFGR_PLLMUL10; }
-static inline void RCC_Set_PLL_Multiplier_To_11(void) { RCC->CFGR |= RCC_CFGR_PLLMUL11; }
-static inline void RCC_Set_PLL_Multiplier_To_12(void) { RCC->CFGR |= RCC_CFGR_PLLMUL12; }
-static inline void RCC_Set_PLL_Multiplier_To_13(void) { RCC->CFGR |= RCC_CFGR_PLLMUL13; }
-static inline void RCC_Set_PLL_Multiplier_To_14(void) { RCC->CFGR |= RCC_CFGR_PLLMUL14; }
-static inline void RCC_Set_PLL_Multiplier_To_15(void) { RCC->CFGR |= RCC_CFGR_PLLMUL15; }
-static inline void RCC_Set_PLL_Multiplier_To_16(void) { RCC->CFGR |= RCC_CFGR_PLLMUL16; }
+static inline void RCC_Set_PLL_Multiplier_To_2(void)  { RCC->CFGR |= RCC_CFGR_PLLMULL2;  }
+static inline void RCC_Set_PLL_Multiplier_To_3(void)  { RCC->CFGR |= RCC_CFGR_PLLMULL3;  }
+static inline void RCC_Set_PLL_Multiplier_To_4(void)  { RCC->CFGR |= RCC_CFGR_PLLMULL4;  }
+static inline void RCC_Set_PLL_Multiplier_To_5(void)  { RCC->CFGR |= RCC_CFGR_PLLMULL5;  }
+static inline void RCC_Set_PLL_Multiplier_To_6(void)  { RCC->CFGR |= RCC_CFGR_PLLMULL6;  }
+static inline void RCC_Set_PLL_Multiplier_To_7(void)  { RCC->CFGR |= RCC_CFGR_PLLMULL7;  }
+static inline void RCC_Set_PLL_Multiplier_To_8(void)  { RCC->CFGR |= RCC_CFGR_PLLMULL8;  }
+static inline void RCC_Set_PLL_Multiplier_To_9(void)  { RCC->CFGR |= RCC_CFGR_PLLMULL9;  }
+static inline void RCC_Set_PLL_Multiplier_To_10(void) { RCC->CFGR |= RCC_CFGR_PLLMULL10; }
+static inline void RCC_Set_PLL_Multiplier_To_11(void) { RCC->CFGR |= RCC_CFGR_PLLMULL11; }
+static inline void RCC_Set_PLL_Multiplier_To_12(void) { RCC->CFGR |= RCC_CFGR_PLLMULL12; }
+static inline void RCC_Set_PLL_Multiplier_To_13(void) { RCC->CFGR |= RCC_CFGR_PLLMULL13; }
+static inline void RCC_Set_PLL_Multiplier_To_14(void) { RCC->CFGR |= RCC_CFGR_PLLMULL14; }
+static inline void RCC_Set_PLL_Multiplier_To_15(void) { RCC->CFGR |= RCC_CFGR_PLLMULL15; }
+static inline void RCC_Set_PLL_Multiplier_To_16(void) { RCC->CFGR |= RCC_CFGR_PLLMULL16; }
 
 static inline void RCC_Set_PLL_Clock_Source_To_HSI_Div2(void) {
 	RCC->CFGR &= ~RCC_CFGR_PLLSRC;

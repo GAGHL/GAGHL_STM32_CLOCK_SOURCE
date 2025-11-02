@@ -1,7 +1,5 @@
 
-#include <stdint.h>
 #include "GAGHL_STM32_CLOCK_MANAGER.h"
-#include <main.h>
 
 volatile CLOCK_SOURCE_T current_clock_source;
 volatile PLL_CLOCK_SOURCE_T current_pll_clock_source;
