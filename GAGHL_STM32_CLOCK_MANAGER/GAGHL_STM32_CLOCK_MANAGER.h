@@ -7,6 +7,18 @@
 #define SBI(REG, BIT) ((REG) |= (BIT))
 #define CBI(REG, BIT) ((REG) &= ~(BIT))
 
+#ifndef RCC_CFGR_PPRE1_DIV1
+	#define RCC_CFGR_PPRE1_DIV1 0x00000000
+#endif
+
+#ifndef RCC_CFGR_PPRE2_DIV1
+	#define RCC_CFGR_PPRE2_DIV1 0x00000000
+#endif
+
+#ifndef RCC_CFGR_HPRE_DIV1
+	#define RCC_CFGR_HPRE_DIV1 0x00000000
+#endif
+
 typedef enum {
 	Clock_Source_is_HSI = 0,
 	Clock_Source_is_HSE,
@@ -25,7 +37,44 @@ static inline void RCC_Enable_CSS(void) { SBI(RCC->CR, RCC_CR_CSSON); }
 static inline void RCC_Enable_HSI(void) { SBI(RCC->CR, RCC_CR_HSION); }
 static inline void RCC_Enable_HSE(void) { SBI(RCC->CR, RCC_CR_HSEON); }
 static inline void RCC_Enable_PLL(void) { SBI(RCC->CR, RCC_CR_PLLON); }
-
+/*
+static inline void RCC_Set_APB1_Clock_To_Div1(void) { CBI(RCC->CFGR, RCC_CFGR_PPRE1_DIV1); }
+static inline void RCC_Set_APB1_Clock_To_Div2(void) { SBI(RCC->CFGR, RCC_CFGR_PPRE1_DIV2); }
+static inline void RCC_Set_APB1_Clock_To_Div4(void) { SBI(RCC->CFGR, RCC_CFGR_PPRE1_DIV4); }
+static inline void RCC_Set_APB1_Clock_To_Div8(void) { SBI(RCC->CFGR, RCC_CFGR_PPRE1_DIV8); }
+static inline void RCC_Set_APB1_Clock_To_Div16(void) { SBI(RCC->CFGR, RCC_CFGR_PPRE1_DIV16); }
+*/
+static inline void RCC_Set_APB1_Clock_To(uint32_t div) {
+	RCC->CFGR &= ~RCC_CFGR_PPRE1;
+	RCC->CFGR |= div;
+}
+/*
+static inline void RCC_Set_APB2_Clock_To_Div1(void) { CBI(RCC->CFGR, RCC_CFGR_PPRE2_DIV1); }
+static inline void RCC_Set_APB2_Clock_To_Div2(void) { SBI(RCC->CFGR, RCC_CFGR_PPRE2_DIV2); }
+static inline void RCC_Set_APB2_Clock_To_Div4(void) { SBI(RCC->CFGR, RCC_CFGR_PPRE2_DIV4); }
+static inline void RCC_Set_APB2_Clock_To_Div8(void) { SBI(RCC->CFGR, RCC_CFGR_PPRE2_DIV8); }
+static inline void RCC_Set_APB2_Clock_To_Div16(void) { SBI(RCC->CFGR, RCC_CFGR_PPRE2_DIV16); }
+*/
+static inline void RCC_Set_APB2_Clock_To(uint32_t div) {
+	RCC->CFGR &= ~RCC_CFGR_PPRE2;
+	RCC->CFGR |= div;
+}
+/*
+static inline void RCC_Set_AHP_Clock_To_Div1(void) { CBI(RCC->CFGR, RCC_CFGR_HPRE_DIV1); }
+static inline void RCC_Set_AHP_Clock_To_Div2(void) { SBI(RCC->CFGR, RCC_CFGR_HPRE_DIV2); }
+static inline void RCC_Set_AHP_Clock_To_Div4(void) { SBI(RCC->CFGR, RCC_CFGR_HPRE_DIV4); }
+static inline void RCC_Set_AHP_Clock_To_Div8(void) { SBI(RCC->CFGR, RCC_CFGR_HPRE_DIV8); }
+static inline void RCC_Set_AHP_Clock_To_Div16(void) { SBI(RCC->CFGR, RCC_CFGR_HPRE_DIV16); }
+static inline void RCC_Set_AHP_Clock_To_Div64(void) { CBI(RCC->CFGR, RCC_CFGR_HPRE_DIV64); }
+static inline void RCC_Set_AHP_Clock_To_Div128(void) { SBI(RCC->CFGR, RCC_CFGR_HPRE_DIV128); }
+static inline void RCC_Set_AHP_Clock_To_Div256(void) { SBI(RCC->CFGR, RCC_CFGR_HPRE_DIV256); }
+static inline void RCC_Set_AHP_Clock_To_Div512(void) { SBI(RCC->CFGR, RCC_CFGR_HPRE_DIV512); }
+*/
+static inline void RCC_Set_AHB_Clock_To(uint32_t div) {
+	RCC->CFGR &= ~RCC_CFGR_HPRE;
+	RCC->CFGR |= div;
+}
+/*
 static inline void RCC_Set_PLL_Multiplier_To_2(void)  { SBI(RCC->CFGR, RCC_CFGR_PLLMULL2);  }
 static inline void RCC_Set_PLL_Multiplier_To_3(void)  { SBI(RCC->CFGR, RCC_CFGR_PLLMULL3);  }
 static inline void RCC_Set_PLL_Multiplier_To_4(void)  { SBI(RCC->CFGR, RCC_CFGR_PLLMULL4);  }
@@ -41,6 +90,11 @@ static inline void RCC_Set_PLL_Multiplier_To_13(void) { SBI(RCC->CFGR, RCC_CFGR_
 static inline void RCC_Set_PLL_Multiplier_To_14(void) { SBI(RCC->CFGR, RCC_CFGR_PLLMULL14); }
 static inline void RCC_Set_PLL_Multiplier_To_15(void) { SBI(RCC->CFGR, RCC_CFGR_PLLMULL15); }
 static inline void RCC_Set_PLL_Multiplier_To_16(void) { SBI(RCC->CFGR, RCC_CFGR_PLLMULL16); }
+*/
+static inline void RCC_Set_PLL_Multiplier_To(uint32_t div) {
+	RCC->CFGR &= ~RCC_CFGR_PLLMULL;
+	RCC->CFGR |= div;
+}
 
 static inline void RCC_Set_PLL_Clock_Source_To_HSI_Div2(void) {
 	CBI(RCC->CFGR, RCC_CFGR_PLLSRC);
@@ -54,14 +108,23 @@ static inline void RCC_Set_PLL_Clock_Source_To_HSE_Div2(void) {
 	SBI(RCC->CFGR, RCC_CFGR_PLLXTPRE);
 }
 
-static inline void RCC_Set_System_Clock_Source_To_HSI_Output(void) { SBI(RCC->CFGR, RCC_CFGR_SW_HSI); }
-static inline void RCC_Set_System_Clock_Source_To_HSE_Output(void) { SBI(RCC->CFGR, RCC_CFGR_SW_HSE); }
-static inline void RCC_Set_System_Clock_Source_To_PLL_Output(void) { SBI(RCC->CFGR, RCC_CFGR_SW_PLL); }
+static inline void RCC_Set_System_Clock_Source_To_HSI_Output(void) { RCC->CFGR |= RCC_CFGR_SW_HSI; }
+static inline void RCC_Set_System_Clock_Source_To_HSE_Output(void) { RCC->CFGR |= RCC_CFGR_SW_HSE; }
+static inline void RCC_Set_System_Clock_Source_To_PLL_Output(void) { RCC->CFGR |= RCC_CFGR_SW_PLL; }
 
 static inline void RCC_Wait_HSI_Ready(void) { while (!(RCC->CR & RCC_CR_HSIRDY)); }
 static inline void RCC_Wait_HSE_Ready(void) { while (!(RCC->CR & RCC_CR_HSERDY)); }
 static inline void RCC_Wait_PLL_Ready(void) { while (!(RCC->CR & RCC_CR_PLLRDY)); }
 
+static inline void RCC_Wait_System_Clock_HSI_Ready(void) {
+	while((RCC->CFGR & RCC_CFGR_SWS_HSI) != RCC_CFGR_SWS_HSI);
+}
+static inline void RCC_Wait_System_Clock_HSE_Ready(void) {
+	while((RCC->CFGR & RCC_CFGR_SWS_HSE) != RCC_CFGR_SWS_HSE);
+}
+static inline void RCC_Wait_System_Clock_PLL_Ready(void) {
+	while((RCC->CFGR & RCC_CFGR_SWS_PLL) != RCC_CFGR_SWS_PLL);
+}
 
 
 #endif
