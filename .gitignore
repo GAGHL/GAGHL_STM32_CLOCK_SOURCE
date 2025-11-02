@@ -1,4 +1,4 @@
-.setting/
+.settings/
 Core/
 Debug/
 Drivers/
@@ -6,5 +6,13 @@ Drivers/
 .mxproject
 .project
 GAGHL_STM32_CLOCK_SOURCE Debug.launch
-GAGHL_STM32_CLOCK_SOURCE.ioc
-STM32F303VCTX_FLASH.ld
+Bluepill GAGHL_CLOCK_SOURCE.ioc
+STM32F103C8TX_FLASH.ld
+main.c
+First.uvprojx
+First.uvoptx
+First.uvguix.GAGHL
+RTE/
+Objects/
+Listings/
+DebugConfig/
