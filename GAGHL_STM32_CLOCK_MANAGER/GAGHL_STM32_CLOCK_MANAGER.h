@@ -4,6 +4,12 @@
 #include <stm32f10x.h>
 #include <stdint.h>
 
+#define HSI_TIMEOUT_VALUE  				0x5000
+#define HSE_TIMEOUT_VALUE 			 	0x5000
+#define PLL_TIMEOUT_VALUE  				0x5000
+#define SYS_To_HSI_TIMEOUT_VALUE  0x5000
+#define SYS_To_HSE_TIMEOUT_VALUE  0x5000
+#define SYS_To_PLL_TIMEOUT_VALUE  0x5000
 
 #define SET_BIT(REG, BIT)      ((REG) |= (BIT))
 #define CLEAR_BIT(REG, BIT)    ((REG) &= ~(BIT))
@@ -83,6 +89,13 @@ typedef enum {
 } PLL_MULL_T;
 
 typedef enum {
+	ADC_DIV_2 = RCC_CFGR_ADCPRE_DIV2,
+	ADC_DIV_4 = RCC_CFGR_ADCPRE_DIV4,
+	ADC_DIV_6 = RCC_CFGR_ADCPRE_DIV6,
+	ADC_DIV_8 = RCC_CFGR_ADCPRE_DIV8
+} ADC_DIV_T;
+
+typedef enum {
 	FLASH_LATENCY_0 = 0x0U,
 	FLASH_LATENCY_1 = FLASH_ACR_LATENCY_0,
 	FLASH_LATENCY_2 = FLASH_ACR_LATENCY_1
@@ -111,23 +124,23 @@ static inline void RCC_HSI_Disable(void)   { CLEAR_BIT(RCC->CR, RCC_CR_HSION);  
 static inline void RCC_HSI_Enable_IT(void) { SET_BIT(RCC->CIR, RCC_CIR_HSIRDYIE); }
 static inline void RCC_HSI_Clear_IT(void)  { SET_BIT(RCC->CIR, RCC_CIR_HSIRDYC);  }
 
-static inline void RCC_HSE_Enable(void)    { SET_BIT(RCC->CR, RCC_CR_HSEON);      }
-static inline void RCC_HSE_Disable(void)   { CLEAR_BIT(RCC->CR, RCC_CR_HSEON);    }
-static inline void RCC_HSE_Enable_IT(void) { SET_BIT(RCC->CIR, RCC_CIR_HSERDYIE); }
-static inline void RCC_HSE_Clear_IT(void)  { SET_BIT(RCC->CIR, RCC_CIR_HSERDYC);  }
+static inline void RCC_HSE_Enable(void)    { SET_BIT(RCC->CR,   RCC_CR_HSEON);     }
+static inline void RCC_HSE_Disable(void)   { CLEAR_BIT(RCC->CR, RCC_CR_HSEON);     }
+static inline void RCC_HSE_Enable_IT(void) { SET_BIT(RCC->CIR,  RCC_CIR_HSERDYIE); }
+static inline void RCC_HSE_Clear_IT(void)  { SET_BIT(RCC->CIR,  RCC_CIR_HSERDYC);  }
 
-static inline void RCC_PLL_Enable(void)    { SET_BIT(RCC->CR,  RCC_CR_PLLON);     }
-static inline void RCC_PLL_Disable(void)   { SET_BIT(RCC->CR,  RCC_CR_PLLON);     }
-static inline void RCC_PLL_Enable_IT(void) { SET_BIT(RCC->CIR, RCC_CIR_PLLRDYIE); }
-static inline void RCC_PLL_Clear_IT(void)  { SET_BIT(RCC->CIR, RCC_CIR_PLLRDYC);  }
+static inline void RCC_PLL_Enable(void)    { SET_BIT(RCC->CR,   RCC_CR_PLLON);     }
+static inline void RCC_PLL_Disable(void)   { CLEAR_BIT(RCC->CR, RCC_CR_PLLON);     }
+static inline void RCC_PLL_Enable_IT(void) { SET_BIT(RCC->CIR,  RCC_CIR_PLLRDYIE); }
+static inline void RCC_PLL_Clear_IT(void)  { SET_BIT(RCC->CIR,  RCC_CIR_PLLRDYC);  }
 
-static inline void RCC_Wait_HSI_Ready(void) { while(!(READ_BIT(RCC->CR, RCC_CR_HSIRDY))); }
-static inline void RCC_Wait_HSE_Ready(void) { while(!(READ_BIT(RCC->CR, RCC_CR_HSERDY))); }
-static inline void RCC_Wait_PLL_Ready(void) { while(!(READ_BIT(RCC->CR, RCC_CR_PLLRDY))); }
+static inline uint8_t RCC_HSI_Is_Ready(void) { return READ_BIT(RCC->CR, RCC_CR_HSIRDY) != 0; }
+static inline uint8_t RCC_HSE_Is_Ready(void) { return READ_BIT(RCC->CR, RCC_CR_HSERDY) != 0; }
+static inline uint8_t RCC_PLL_Is_Ready(void) { return READ_BIT(RCC->CR, RCC_CR_PLLRDY) != 0; }
 
-static inline void RCC_Wait_HSI_Disable(void) { while(READ_BIT(RCC->CR, RCC_CR_HSIRDY)); }
-static inline void RCC_Wait_HSE_Disable(void) { while(READ_BIT(RCC->CR, RCC_CR_HSERDY)); }
-static inline void RCC_Wait_PLL_Disable(void) { while(READ_BIT(RCC->CR, RCC_CR_PLLRDY)); }
+static inline uint8_t RCC_HSI_Is_Disable(void) { return READ_BIT(RCC->CR, RCC_CR_HSIRDY) == 0; }
+static inline uint8_t RCC_HSE_Is_Disable(void) { return READ_BIT(RCC->CR, RCC_CR_HSERDY) == 0; }
+static inline uint8_t RCC_PLL_Is_Disable(void) { return READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0; }
 
 static inline void RCC_Set_System_Clock_To_HSI_Output(void) {
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_HSI);
@@ -138,10 +151,88 @@ static inline void RCC_Set_System_Clock_To_HSE_Output(void) {
 static inline void RCC_Set_System_Clock_To_PLL_Output(void) {
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL);
 }
+//------------------------------Wait for HSI/HSE/PLL clocks getting ready
+static inline void RCC_Wait_HSI_Ready(void)    { while(!RCC_HSI_Is_Ready()); }
+static inline void RCC_Wait_HSE_Ready(void)    { while(!RCC_HSE_Is_Ready()); }
+static inline void RCC_Wait_PLL_Ready(void)    { while(!RCC_PLL_Is_Ready()); }
+//------------------------------Wait for HSI/HSE/PLL clocks getting disable
+static inline void RCC_Wait_HSI_Disable(void)  { while(!RCC_HSI_Is_Disable()); }
+static inline void RCC_Wait_HSE_Disable(void)  { while(!RCC_HSE_Is_Disable()); }
+static inline void RCC_Wait_PLL_Disable(void)  { while(!RCC_PLL_Is_Disable()); }
+//------------------------------Wait for HSI/HSE/PLL clocks getting ready with timeout
+static inline int8_t RCC_Wait_HSI_Ready_With_Timeout(void) { 
+	uint32_t timeout = 0;
+	while(!RCC_HSI_Is_Ready()) {
+		timeout++;
+		if (timeout > HSI_TIMEOUT_VALUE) {
+				return -1; 
+		}
+	}
+	return 0;
+}
 
-static inline void RCC_Wait_System_Clock_To_HSI_Ready(void) { while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI); }
-static inline void RCC_Wait_System_Clock_To_HSE_Ready(void) { while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSE); }
-static inline void RCC_Wait_System_Clock_To_PLL_Ready(void) { while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL); }
+static inline int8_t RCC_Wait_HSE_Ready_With_Timeout(void) { 
+	uint32_t timeout = 0;
+	while(!RCC_HSE_Is_Ready()) {
+		timeout++;
+		if (timeout > HSE_TIMEOUT_VALUE) {
+				return -1; 
+		}
+	}
+	return 0;
+}
+
+static inline int8_t RCC_Wait_PLL_Ready_With_Timeout(void) { 
+	uint32_t timeout = 0;
+	while(!RCC_PLL_Is_Ready()) {
+		timeout++;
+		if (timeout > PLL_TIMEOUT_VALUE) {
+				return -1; 
+		}
+	}
+	return 0;
+}
+//------------------------------System Clock Select checks getting ready
+static inline uint8_t RCC_System_Clock_To_HSI_Is_Ready(void) { return READ_BIT(RCC->CFGR, RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI; }
+static inline uint8_t RCC_System_Clock_To_HSE_Is_Ready(void) { return READ_BIT(RCC->CFGR, RCC_CFGR_SWS) == RCC_CFGR_SWS_HSE; }
+static inline uint8_t RCC_System_Clock_To_PLL_Is_Ready(void) { return READ_BIT(RCC->CFGR, RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL; }
+//------------------------------Wait for system clock source changed to HSI/HSE/PLL output ready
+static inline void RCC_Wait_System_Clock_To_HSI_Ready(void) { while(!RCC_System_Clock_To_HSI_Is_Ready()); }
+static inline void RCC_Wait_System_Clock_To_HSE_Ready(void) { while(!RCC_System_Clock_To_HSE_Is_Ready()); }
+static inline void RCC_Wait_System_Clock_To_PLL_Ready(void) { while(!RCC_System_Clock_To_PLL_Is_Ready()); }
+//------------------------------Wait for system clock source changed to HSI/HSE/PLL output ready with timeout
+static inline int8_t RCC_Wait_System_Clock_To_HSI_Ready_With_Timeout(void) { 
+	uint32_t timeout = 0;
+	while(!RCC_System_Clock_To_HSI_Is_Ready()) {
+		timeout++;
+		if (timeout > SYS_To_HSI_TIMEOUT_VALUE) {
+				return -1; 
+		}
+	}
+	return 0;
+}
+
+static inline int8_t RCC_Wait_System_Clock_To_HSE_Ready_With_Timeout(void) { 
+	uint32_t timeout = 0;
+	while(!RCC_System_Clock_To_HSE_Is_Ready()) {
+		timeout++;
+		if (timeout > SYS_To_HSE_TIMEOUT_VALUE) {
+				return -1; 
+		}
+	}
+	return 0;
+}
+
+static inline int8_t RCC_Wait_System_Clock_To_PLL_Ready_With_Timeout(void) { 
+	uint32_t timeout = 0;
+	while(!RCC_System_Clock_To_PLL_Is_Ready()) {
+		timeout++;
+		if (timeout > SYS_To_PLL_TIMEOUT_VALUE) {
+				return -1; 
+		}
+	}
+	return 0;
+}
 
 static inline void RCC_FLASH_Set_Latency(FLASH_LATENCY_T latency) {
 	MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, latency);
@@ -251,7 +342,7 @@ static inline void RCC_APB2_Disable_AFIO(void)  { CLEAR_BIT(RCC->APB2ENR, RCC_AP
 
 static inline void PLL_Enable_With_Config(PLL_INPUT_SOURCE_T source, PLL_MULL_T mull) {
 	
-	if(READ_BIT(RCC->CFGR, RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) {
+	if(RCC_System_Clock_To_PLL_Is_Ready()) { // If system clock is from PLL
 		RCC_Set_System_Clock_To_HSI_Output();
 		RCC_Wait_System_Clock_To_HSI_Ready();
 	}
@@ -275,6 +366,10 @@ static inline void PLL_Enable_With_Config(PLL_INPUT_SOURCE_T source, PLL_MULL_T 
 	} else {
 		RCC_FLASH_Set_Latency(FLASH_LATENCY_0);
 	}
+	
+	RCC_Set_AHB_Clock(AHB_DIV_1);
+	RCC_Set_APB1_Clock(APB1_DIV_2);
+	RCC_Set_APB2_Clock(APB2_DIV_1);
 	
 	RCC_PLL_Enable();
 	RCC_Wait_PLL_Ready();
