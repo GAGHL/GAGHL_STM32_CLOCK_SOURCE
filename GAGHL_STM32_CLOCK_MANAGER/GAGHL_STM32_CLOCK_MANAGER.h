@@ -83,7 +83,7 @@ typedef enum {
 } PLL_MULL_T;
 
 typedef enum {
-	FLASH_LATENCY_0 = 0x00000000U,
+	FLASH_LATENCY_0 = 0x0U,
 	FLASH_LATENCY_1 = FLASH_ACR_LATENCY_0,
 	FLASH_LATENCY_2 = FLASH_ACR_LATENCY_1
 } FLASH_LATENCY_T;
@@ -92,17 +92,34 @@ typedef enum {
 /* =========================================================
  * 							Clock Control (Enable/Disable)
  * ========================================================= */
-static inline void RCC_CSS_Enable(void)  { SET_BIT(RCC->CR, RCC_CR_CSSON);   }
-static inline void RCC_CSS_Disable(void) { CLEAR_BIT(RCC->CR, RCC_CR_CSSON); }
+static inline void RCC_CSS_Enable(void)    { SET_BIT(RCC->CR, RCC_CR_CSSON);   }
+static inline void RCC_CSS_Disable(void)   { CLEAR_BIT(RCC->CR, RCC_CR_CSSON); }
+static inline void RCC_CSS_Clear_IT(void)  { SET_BIT(RCC->CIR, RCC_CIR_CSSC);  }
 
-static inline void RCC_HSI_Enable(void)  { SET_BIT(RCC->CR, RCC_CR_HSION);   }
-static inline void RCC_HSI_Disable(void) { CLEAR_BIT(RCC->CR, RCC_CR_HSION); }
+static inline void RCC_LSI_Enable(void)    { SET_BIT(RCC->CSR,   RCC_CSR_LSION);     }
+static inline void RCC_LSI_Disable(void)   { CLEAR_BIT(RCC->CSR, RCC_CSR_LSION);     }
+static inline void RCC_LSI_Enable_IT(void) { SET_BIT(RCC->CIR,   RCC_CIR_LSIRDYIE);  }
+static inline void RCC_LSI_Clear_IT(void)  { SET_BIT(RCC->CIR,   RCC_CIR_LSIRDYC);   }
 
-static inline void RCC_HSE_Enable(void)  { SET_BIT(RCC->CR, RCC_CR_HSEON);   }
-static inline void RCC_HSE_Disable(void) { CLEAR_BIT(RCC->CR, RCC_CR_HSEON); }
+static inline void RCC_LSE_Enable(void)    { SET_BIT(RCC->BDCR,   RCC_BDCR_LSEON);    }
+static inline void RCC_LSE_Disable(void)   { CLEAR_BIT(RCC->BDCR, RCC_BDCR_LSEON);    }
+static inline void RCC_LSE_Enable_IT(void) { SET_BIT(RCC->CIR,    RCC_CIR_HSERDYIE);  }
+static inline void RCC_LSE_Clear_IT(void)  { SET_BIT(RCC->CIR,    RCC_CIR_HSERDYC);   }
 
-static inline void RCC_PLL_Enable(void)  { SET_BIT(RCC->CR, RCC_CR_PLLON);   }
-static inline void RCC_PLL_Disable(void) { CLEAR_BIT(RCC->CR, RCC_CR_PLLON); }
+static inline void RCC_HSI_Enable(void)    { SET_BIT(RCC->CR, RCC_CR_HSION);      }
+static inline void RCC_HSI_Disable(void)   { CLEAR_BIT(RCC->CR, RCC_CR_HSION);    }
+static inline void RCC_HSI_Enable_IT(void) { SET_BIT(RCC->CIR, RCC_CIR_HSIRDYIE); }
+static inline void RCC_HSI_Clear_IT(void)  { SET_BIT(RCC->CIR, RCC_CIR_HSIRDYC);  }
+
+static inline void RCC_HSE_Enable(void)    { SET_BIT(RCC->CR, RCC_CR_HSEON);      }
+static inline void RCC_HSE_Disable(void)   { CLEAR_BIT(RCC->CR, RCC_CR_HSEON);    }
+static inline void RCC_HSE_Enable_IT(void) { SET_BIT(RCC->CIR, RCC_CIR_HSERDYIE); }
+static inline void RCC_HSE_Clear_IT(void)  { SET_BIT(RCC->CIR, RCC_CIR_HSERDYC);  }
+
+static inline void RCC_PLL_Enable(void)    { SET_BIT(RCC->CR,  RCC_CR_PLLON);     }
+static inline void RCC_PLL_Disable(void)   { SET_BIT(RCC->CR,  RCC_CR_PLLON);     }
+static inline void RCC_PLL_Enable_IT(void) { SET_BIT(RCC->CIR, RCC_CIR_PLLRDYIE); }
+static inline void RCC_PLL_Clear_IT(void)  { SET_BIT(RCC->CIR, RCC_CIR_PLLRDYC);  }
 
 static inline void RCC_Wait_HSI_Ready(void) { while(!(READ_BIT(RCC->CR, RCC_CR_HSIRDY))); }
 static inline void RCC_Wait_HSE_Ready(void) { while(!(READ_BIT(RCC->CR, RCC_CR_HSERDY))); }
@@ -130,9 +147,108 @@ static inline void RCC_FLASH_Set_Latency(FLASH_LATENCY_T latency) {
 	MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, latency);
 }
 
+/* =========================================================
+ * 			Clock Division Configuration (AHB, APB1, APB2)
+ * ========================================================= */
+
+
+static inline void RCC_Set_AHB_Clock(AHB_DIV_T div)   { MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, div); }
+static inline void RCC_Set_APB1_Clock(APB1_DIV_T div) { MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, div); }
+static inline void RCC_Set_APB2_Clock(APB2_DIV_T div) { MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, div); }
+
+// AHB
+static inline void RCC_AHB_Enable_CRC(void)   { SET_BIT(RCC->AHBENR, RCC_AHBENR_CRCEN); }
+static inline void RCC_AHB_Disable_CRC(void)  { CLEAR_BIT(RCC->AHBENR, RCC_AHBENR_CRCEN); }
+
+static inline void RCC_AHB_Enable_DMA1(void)   { SET_BIT(RCC->AHBENR, RCC_AHBENR_DMA1EN); }
+static inline void RCC_AHB_Disable_DMA1(void)  { CLEAR_BIT(RCC->AHBENR, RCC_AHBENR_DMA1EN); }
+
+static inline void RCC_AHB_Enable_FLIT(void)   { SET_BIT(RCC->AHBENR, RCC_AHBENR_FLITFEN); }
+static inline void RCC_AHB_Disable_FLIT(void)  { CLEAR_BIT(RCC->AHBENR, RCC_AHBENR_FLITFEN); }
+
+static inline void RCC_AHB_Enable_SRAM(void)   { SET_BIT(RCC->AHBENR, RCC_AHBENR_SRAMEN); }
+static inline void RCC_AHB_Disable_SRAM(void)  { CLEAR_BIT(RCC->AHBENR, RCC_AHBENR_SRAMEN); }
+
+
+// APB1
+static inline void RCC_APB1_Enable_TIM2(void)   { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM2EN); }
+static inline void RCC_APB1_Disable_TIM2(void)  { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM2EN); }
+
+static inline void RCC_APB1_Enable_TIM3(void)   { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM3EN); }
+static inline void RCC_APB1_Disable_TIM3(void)  { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM3EN); }
+
+static inline void RCC_APB1_Enable_TIM4(void)   { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM4EN); }
+static inline void RCC_APB1_Disable_TIM4(void)  { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM4EN); }
+
+static inline void RCC_APB1_Enable_USART2(void) { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_USART2EN); }
+static inline void RCC_APB1_Disable_USART2(void){ CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_USART2EN); }
+
+static inline void RCC_APB1_Enable_USART3(void) { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_USART3EN); }
+static inline void RCC_APB1_Disable_USART3(void){ CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_USART3EN); }
+
+static inline void RCC_APB1_Enable_SPI2(void)   { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_SPI2EN); }
+static inline void RCC_APB1_Disable_SPI2(void)  { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_SPI2EN); }
+
+static inline void RCC_APB1_Enable_I2C1(void)   { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_I2C1EN); }
+static inline void RCC_APB1_Disable_I2C1(void)  { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_I2C1EN); }
+
+static inline void RCC_APB1_Enable_I2C2(void)   { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_I2C2EN); }
+static inline void RCC_APB1_Disable_I2C2(void)  { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_I2C2EN); }
+
+static inline void RCC_APB1_Enable_CAN1(void)   { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_CAN1EN); }
+static inline void RCC_APB1_Disable_CAN1(void)  { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_CAN1EN); }
+
+static inline void RCC_APB1_Enable_USB(void)    { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_USBEN); }
+static inline void RCC_APB1_Disable_USB(void)   { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_USBEN); }
+
+static inline void RCC_APB1_Enable_WWDG(void)   { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_WWDGEN); }
+static inline void RCC_APB1_Disable_WWDG(void)  { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_WWDGEN); }
+
+static inline void RCC_APB1_Enable_BKP(void)    { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_BKPEN); }
+static inline void RCC_APB1_Disable_BKP(void)   { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_BKPEN); }
+
+static inline void RCC_APB1_Enable_PWR(void)    { SET_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN); }
+static inline void RCC_APB1_Disable_PWR(void)   { CLEAR_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN); }
+
+// APB2
+static inline void RCC_APB2_Enable_TIM1(void)   { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_TIM1EN); }
+static inline void RCC_APB2_Disable_TIM1(void)  { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_TIM1EN); }
+
+static inline void RCC_APB2_Enable_SPI1(void)   { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_SPI1EN); }
+static inline void RCC_APB2_Disable_SPI1(void)  { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_SPI1EN); }
+
+static inline void RCC_APB2_Enable_USART1(void) { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_USART1EN); }
+static inline void RCC_APB2_Disable_USART1(void){ CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_USART1EN); }
+
+static inline void RCC_APB2_Enable_ADC1(void)   { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_ADC1EN); }
+static inline void RCC_APB2_Disable_ADC1(void)  { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_ADC1EN); }
+
+static inline void RCC_APB2_Enable_ADC2(void)   { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_ADC2EN); }
+static inline void RCC_APB2_Disable_ADC2(void)  { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_ADC2EN); }
+
+static inline void RCC_APB2_Enable_GPIOA(void)  { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); }
+static inline void RCC_APB2_Disable_GPIOA(void) { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); }
+
+static inline void RCC_APB2_Enable_GPIOB(void)  { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN); }
+static inline void RCC_APB2_Disable_GPIOB(void) { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN); }
+
+static inline void RCC_APB2_Enable_GPIOC(void)  { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPCEN); }
+static inline void RCC_APB2_Disable_GPIOC(void) { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPCEN); }
+
+static inline void RCC_APB2_Enable_GPIOD(void)  { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPDEN); }
+static inline void RCC_APB2_Disable_GPIOD(void) { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPDEN); }
+
+static inline void RCC_APB2_Enable_GPIOE(void)  { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPEEN); }
+static inline void RCC_APB2_Disable_GPIOE(void) { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPEEN); }
+
+static inline void RCC_APB2_Enable_AFIO(void)   { SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); }
+static inline void RCC_APB2_Disable_AFIO(void)  { CLEAR_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); }
+
 /* ==============================================
  *							High level functions
  * ============================================== */
+
+
 static inline void PLL_Enable_With_Config(PLL_INPUT_SOURCE_T source, PLL_MULL_T mull) {
 	
 	if(READ_BIT(RCC->CFGR, RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) {
@@ -167,91 +283,11 @@ static inline void PLL_Enable_With_Config(PLL_INPUT_SOURCE_T source, PLL_MULL_T 
 	RCC_Wait_System_Clock_To_PLL_Ready();
 }
 
-
-
-/* =========================================================
- * 			Clock Division Configuration (AHB, APB1, APB2)
- * ========================================================= */
-/*
-static inline void RCC_Set_APB1_Clock_To(APB1_DIV_T div) {
-	RCC->CFGR &= ~RCC_CFGR_PPRE1;
-	RCC->CFGR |= div;
+static inline void SystemClock_Config_To_72MHz(void) {
+    PLL_Enable_With_Config(HSE_DIV_1, MULL_9);
+    RCC_Set_AHB_Clock(AHB_DIV_1);
+    RCC_Set_APB1_Clock(APB1_DIV_2);
+    RCC_Set_APB2_Clock(APB2_DIV_1);
 }
-
-static inline void RCC_Set_APB2_Clock_To(APB2_DIV_T div) {
-	RCC->CFGR &= ~RCC_CFGR_PPRE2;
-	RCC->CFGR |= div;
-}
-
-static inline void RCC_Set_AHB_Clock_To(AHB_DIV_T div) {
-	RCC->CFGR &= ~RCC_CFGR_HPRE;
-	RCC->CFGR |= div;
-}
-
-static inline void RCC_Set_PLL_Multiplier_To(uint32_t div) {
-	RCC->CFGR &= ~RCC_CFGR_PLLMULL;
-	RCC->CFGR |= div;
-}
-
-static inline void RCC_Set_PLL_Clock_Source_To_HSI_Div2(void) {
-	CBI(RCC->CFGR, RCC_CFGR_PLLSRC);
-}
-static inline void RCC_Set_PLL_Clock_Source_To_HSE_Div1(void) {
-	SBI(RCC->CFGR, RCC_CFGR_PLLSRC);
-	CBI(RCC->CFGR, RCC_CFGR_PLLXTPRE);
-}
-static inline void RCC_Set_PLL_Clock_Source_To_HSE_Div2(void) {
-	SBI(RCC->CFGR, RCC_CFGR_PLLSRC);
-	SBI(RCC->CFGR, RCC_CFGR_PLLXTPRE);
-}
-
-static inline void RCC_Set_System_Clock_To_HSI_Output(void) { RCC->CFGR |= RCC_CFGR_SW_HSI; }
-static inline void RCC_Set_System_Clock_To_HSE_Output(void) { RCC->CFGR |= RCC_CFGR_SW_HSE; }
-static inline void RCC_Set_System_Clock_To_PLL_Output(void) { RCC->CFGR |= RCC_CFGR_SW_PLL; }
-
-
-
-static inline void RCC_Wait_System_Clock_HSI_Ready(void) {
-	while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI);
-}
-static inline void RCC_Wait_System_Clock_HSE_Ready(void) {
-	while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSE);
-}
-static inline void RCC_Wait_System_Clock_PLL_Ready(void) {
-	while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
-}
-
-static inline void RCC_AHB_Enable_CRC(void)     { SBI(RCC->AHBENR ,RCC_AHBENR_CRCEN);      }
-static inline void RCC_AHB_Enable_DMA1(void)    { SBI(RCC->AHBENR ,RCC_AHBENR_DMA1EN);     }
-static inline void RCC_AHB_Enable_FLIT(void)    { SBI(RCC->AHBENR ,RCC_AHBENR_FLITFEN);    }
-static inline void RCC_AHB_Enable_SRAM(void)    { SBI(RCC->AHBENR ,RCC_AHBENR_SRAMEN);     }
-
-static inline void RCC_APB1_Enable_TIM2(void)   { SBI(RCC->APB1ENR ,RCC_APB1ENR_TIM2EN);   }
-static inline void RCC_APB1_Enable_TIM3(void)   { SBI(RCC->APB1ENR ,RCC_APB1ENR_TIM3EN);   }
-static inline void RCC_APB1_Enable_TIM4(void)   { SBI(RCC->APB1ENR ,RCC_APB1ENR_TIM4EN);   }
-static inline void RCC_APB1_Enable_USART2(void) { SBI(RCC->APB1ENR ,RCC_APB1ENR_USART2EN); }
-static inline void RCC_APB1_Enable_USART3(void) { SBI(RCC->APB1ENR ,RCC_APB1ENR_USART3EN); }
-static inline void RCC_APB1_Enable_SPI2(void)   { SBI(RCC->APB1ENR ,RCC_APB1ENR_SPI2EN);   }
-static inline void RCC_APB1_Enable_I2C1(void)   { SBI(RCC->APB1ENR ,RCC_APB1ENR_I2C1EN);   }
-static inline void RCC_APB1_Enable_I2C2(void)   { SBI(RCC->APB1ENR ,RCC_APB1ENR_I2C2EN);   }
-static inline void RCC_APB1_Enable_CAN1(void)   { SBI(RCC->APB1ENR ,RCC_APB1ENR_CAN1EN);   }
-static inline void RCC_APB1_Enable_USB(void)    { SBI(RCC->APB1ENR ,RCC_APB1ENR_USBEN);    }
-static inline void RCC_APB1_Enable_WWDG(void)   { SBI(RCC->APB1ENR ,RCC_APB1ENR_WWDGEN);   }
-static inline void RCC_APB1_Enable_BKP(void)    { SBI(RCC->APB1ENR ,RCC_APB1ENR_BKPEN);    }
-static inline void RCC_APB1_Enable_PWR(void)    { SBI(RCC->APB1ENR ,RCC_APB1ENR_PWREN);    }
-
-static inline void RCC_APB2_Enable_TIM1(void)   { SBI(RCC->APB2ENR ,RCC_APB2ENR_TIM1EN);   }
-static inline void RCC_APB2_Enable_SPI1(void)   { SBI(RCC->APB2ENR ,RCC_APB2ENR_SPI1EN);   }
-static inline void RCC_APB2_Enable_USART1(void) { SBI(RCC->APB2ENR ,RCC_APB2ENR_USART1EN); }
-static inline void RCC_APB2_Enable_ADC1(void)   { SBI(RCC->APB2ENR ,RCC_APB2ENR_ADC1EN);   }
-static inline void RCC_APB2_Enable_ADC2(void)   { SBI(RCC->APB2ENR ,RCC_APB2ENR_ADC2EN);   }
-static inline void RCC_APB2_Enable_GPIOA(void)  { SBI(RCC->APB2ENR ,RCC_APB2ENR_IOPAEN);   }
-static inline void RCC_APB2_Enable_GPIOB(void)  { SBI(RCC->APB2ENR ,RCC_APB2ENR_IOPBEN);   }
-static inline void RCC_APB2_Enable_GPIOC(void)  { SBI(RCC->APB2ENR ,RCC_APB2ENR_IOPCEN);   }
-static inline void RCC_APB2_Enable_GPIOD(void)  { SBI(RCC->APB2ENR ,RCC_APB2ENR_IOPDEN);   }
-static inline void RCC_APB2_Enable_GPIOE(void)  { SBI(RCC->APB2ENR ,RCC_APB2ENR_IOPEEN);   }
-static inline void RCC_APB2_Enable_AFIO(void)   { SBI(RCC->APB2ENR ,RCC_APB2ENR_AFIOEN);   }
-*/
-
 
 #endif
