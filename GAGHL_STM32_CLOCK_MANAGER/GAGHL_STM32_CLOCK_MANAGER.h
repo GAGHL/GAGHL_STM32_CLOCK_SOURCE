@@ -1,65 +1,178 @@
 #ifndef GAGHL_STM32_CLOCK_MANAGER_H
 #define GAGHL_STM32_CLOCK_MANAGER_H
 
-#include <stdint.h>
 #include <stm32f10x.h>
+#include <stdint.h>
 
-#define SBI(REG, BIT) ((REG) |= (BIT))
-#define CBI(REG, BIT) ((REG) &= ~(BIT))
+
+#define SET_BIT(REG, BIT)      ((REG) |= (BIT))
+#define CLEAR_BIT(REG, BIT)    ((REG) &= ~(BIT))
+#define READ_BIT(REG, BIT)     ((REG) & (BIT))
+
+#define CLEAR_REG(REG)         ((REG) = (0x0))
+#define WRITE_REG(REG, VAL)    ((REG) = (VAL))
+#define READ_REG(REG)          ((REG))
+#define MODIFY_REG(REG, CLEARMASK, SETMASK)  WRITE_REG((REG), (((READ_REG(REG)) & (~(CLEARMASK))) | (SETMASK)))
 
 typedef enum {
-	Clock_Source_is_HSI = 0,
-	Clock_Source_is_HSE,
-	Clock_Source_is_PLL
+	System_Clock_is_HSI = 0,
+	System_Clock_is_HSE,
+	System_Clock_is_PLL
 } CLOCK_SOURCE_T;
 
 typedef enum {
 	PLL_is_Disable = 0,
 	PLL_Source_is_HSE,
-	PLL_Source_is_HSI_div2
+	PLL_Source_is_HSI_div_2
 } PLL_CLOCK_SOURCE_T;
 
 typedef enum {
-	APB1_DIV1   = RCC_CFGR_PPRE1_DIV1,
-	APB1_DIV2   = RCC_CFGR_PPRE1_DIV2,
-	APB1_DIV4   = RCC_CFGR_PPRE1_DIV4,
-	APB1_DIV8   = RCC_CFGR_PPRE1_DIV8,
-	APB1_DIV16  = RCC_CFGR_PPRE1_DIV16
+	APB1_DIV_1   = RCC_CFGR_PPRE1_DIV1,
+	APB1_DIV_2   = RCC_CFGR_PPRE1_DIV2,
+	APB1_DIV_4   = RCC_CFGR_PPRE1_DIV4,
+	APB1_DIV_8   = RCC_CFGR_PPRE1_DIV8,
+	APB1_DIV_16  = RCC_CFGR_PPRE1_DIV16
 } APB1_DIV_T;
 
 typedef enum {
-	APB2_DIV1   = RCC_CFGR_PPRE2_DIV1,
-	APB2_DIV2   = RCC_CFGR_PPRE2_DIV2,
-	APB2_DIV4   = RCC_CFGR_PPRE2_DIV4,
-	APB2_DIV8   = RCC_CFGR_PPRE2_DIV8,
-	APB2_DIV16  = RCC_CFGR_PPRE2_DIV16
+	APB2_DIV_1   = RCC_CFGR_PPRE2_DIV1,
+	APB2_DIV_2   = RCC_CFGR_PPRE2_DIV2,
+	APB2_DIV_4   = RCC_CFGR_PPRE2_DIV4,
+	APB2_DIV_8   = RCC_CFGR_PPRE2_DIV8,
+	APB2_DIV_16  = RCC_CFGR_PPRE2_DIV16
 } APB2_DIV_T;
 
 typedef enum {
-	AHB_DIV1    = RCC_CFGR_HPRE_DIV1,
-	AHB_DIV2    = RCC_CFGR_HPRE_DIV2,
-	AHB_DIV4    = RCC_CFGR_HPRE_DIV4,
-	AHB_DIV8    = RCC_CFGR_HPRE_DIV8,
-	AHB_DIV16   = RCC_CFGR_HPRE_DIV16,
-	AHB_DIV64   = RCC_CFGR_HPRE_DIV64,
-	AHB_DIV128  = RCC_CFGR_HPRE_DIV128,
-	AHB_DIV256  = RCC_CFGR_HPRE_DIV256,
-	AHB_DIV512  = RCC_CFGR_HPRE_DIV512
+	AHB_DIV_1    = RCC_CFGR_HPRE_DIV1,
+	AHB_DIV_2    = RCC_CFGR_HPRE_DIV2,
+	AHB_DIV_4    = RCC_CFGR_HPRE_DIV4,
+	AHB_DIV_8    = RCC_CFGR_HPRE_DIV8,
+	AHB_DIV_16   = RCC_CFGR_HPRE_DIV16,
+	AHB_DIV_64   = RCC_CFGR_HPRE_DIV64,
+	AHB_DIV_128  = RCC_CFGR_HPRE_DIV128,
+	AHB_DIV_256  = RCC_CFGR_HPRE_DIV256,
+	AHB_DIV_512  = RCC_CFGR_HPRE_DIV512
 } AHB_DIV_T;
 
 
-void Check_Clock_Source(void);
+void System_Check_Clock_Source(void);
+void PLL_Check_Clock_Source(void);
+
+typedef enum {
+	HSI_Div_2 = 0x0U,
+	HSE_DIV_1 = RCC_CFGR_PLLSRC,
+	HSE_DIV_2 = (RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE)
+} PLL_INPUT_SOURCE_T;
+
+typedef enum {
+	MULL_2  = RCC_CFGR_PLLMULL2,
+	MULL_3  = RCC_CFGR_PLLMULL3,
+	MULL_4  = RCC_CFGR_PLLMULL4,
+	MULL_5  = RCC_CFGR_PLLMULL5,
+	MULL_6  = RCC_CFGR_PLLMULL6,
+	MULL_7  = RCC_CFGR_PLLMULL7,
+	MULL_8  = RCC_CFGR_PLLMULL8,
+	MULL_9  = RCC_CFGR_PLLMULL9,
+	MULL_10 = RCC_CFGR_PLLMULL10,
+	MULL_11 = RCC_CFGR_PLLMULL11,
+	MULL_12 = RCC_CFGR_PLLMULL12,
+	MULL_13 = RCC_CFGR_PLLMULL13,
+	MULL_14 = RCC_CFGR_PLLMULL14,
+	MULL_15 = RCC_CFGR_PLLMULL15,
+	MULL_16 = RCC_CFGR_PLLMULL16
+} PLL_MULL_T;
+
+typedef enum {
+	FLASH_LATENCY_0 = 0x00000000U,
+	FLASH_LATENCY_1 = FLASH_ACR_LATENCY_0,
+	FLASH_LATENCY_2 = FLASH_ACR_LATENCY_1
+} FLASH_LATENCY_T;
+
 
 /* =========================================================
  * 							Clock Control (Enable/Disable)
  * ========================================================= */
-static inline void RCC_Enable_CSS(void) { SBI(RCC->CR, RCC_CR_CSSON); }
-static inline void RCC_Enable_HSI(void) { SBI(RCC->CR, RCC_CR_HSION); }
-static inline void RCC_Enable_HSE(void) { SBI(RCC->CR, RCC_CR_HSEON); }
-static inline void RCC_Enable_PLL(void) { SBI(RCC->CR, RCC_CR_PLLON); }
+static inline void RCC_CSS_Enable(void)  { SET_BIT(RCC->CR, RCC_CR_CSSON);   }
+static inline void RCC_CSS_Disable(void) { CLEAR_BIT(RCC->CR, RCC_CR_CSSON); }
+
+static inline void RCC_HSI_Enable(void)  { SET_BIT(RCC->CR, RCC_CR_HSION);   }
+static inline void RCC_HSI_Disable(void) { CLEAR_BIT(RCC->CR, RCC_CR_HSION); }
+
+static inline void RCC_HSE_Enable(void)  { SET_BIT(RCC->CR, RCC_CR_HSEON);   }
+static inline void RCC_HSE_Disable(void) { CLEAR_BIT(RCC->CR, RCC_CR_HSEON); }
+
+static inline void RCC_PLL_Enable(void)  { SET_BIT(RCC->CR, RCC_CR_PLLON);   }
+static inline void RCC_PLL_Disable(void) { CLEAR_BIT(RCC->CR, RCC_CR_PLLON); }
+
+static inline void RCC_Wait_HSI_Ready(void) { while(!(READ_BIT(RCC->CR, RCC_CR_HSIRDY))); }
+static inline void RCC_Wait_HSE_Ready(void) { while(!(READ_BIT(RCC->CR, RCC_CR_HSERDY))); }
+static inline void RCC_Wait_PLL_Ready(void) { while(!(READ_BIT(RCC->CR, RCC_CR_PLLRDY))); }
+
+static inline void RCC_Wait_HSI_Disable(void) { while(READ_BIT(RCC->CR, RCC_CR_HSIRDY)); }
+static inline void RCC_Wait_HSE_Disable(void) { while(READ_BIT(RCC->CR, RCC_CR_HSERDY)); }
+static inline void RCC_Wait_PLL_Disable(void) { while(READ_BIT(RCC->CR, RCC_CR_PLLRDY)); }
+
+static inline void RCC_Set_System_Clock_To_HSI_Output(void) {
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_HSI);
+}
+static inline void RCC_Set_System_Clock_To_HSE_Output(void) {
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_HSE);
+}
+static inline void RCC_Set_System_Clock_To_PLL_Output(void) {
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL);
+}
+
+static inline void RCC_Wait_System_Clock_To_HSI_Ready(void) { while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI); }
+static inline void RCC_Wait_System_Clock_To_HSE_Ready(void) { while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSE); }
+static inline void RCC_Wait_System_Clock_To_PLL_Ready(void) { while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL); }
+
+static inline void RCC_FLASH_Set_Latency(FLASH_LATENCY_T latency) {
+	MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, latency);
+}
+
+/* ==============================================
+ *							High level functions
+ * ============================================== */
+static inline void PLL_Enable_With_Config(PLL_INPUT_SOURCE_T source, PLL_MULL_T mull) {
+	
+	if(READ_BIT(RCC->CFGR, RCC_CFGR_SWS) == RCC_CFGR_SWS_PLL) {
+		RCC_Set_System_Clock_To_HSI_Output();
+		RCC_Wait_System_Clock_To_HSI_Ready();
+	}
+	
+	RCC_PLL_Disable();
+	RCC_Wait_PLL_Disable();
+	
+	if((source == HSE_DIV_1) || (source == HSE_DIV_2)) {
+		RCC_HSE_Enable();
+		RCC_Wait_HSE_Ready();
+	}
+	
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE, source);
+	
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLMULL, mull);
+	
+	if (mull >= MULL_6) {
+		RCC_FLASH_Set_Latency(FLASH_LATENCY_2);
+	} else if (mull >= 3) {
+		RCC_FLASH_Set_Latency(FLASH_LATENCY_1);
+	} else {
+		RCC_FLASH_Set_Latency(FLASH_LATENCY_0);
+	}
+	
+	RCC_PLL_Enable();
+	RCC_Wait_PLL_Ready();
+	
+	RCC_Set_System_Clock_To_PLL_Output();
+	RCC_Wait_System_Clock_To_PLL_Ready();
+}
+
+
+
 /* =========================================================
  * 			Clock Division Configuration (AHB, APB1, APB2)
  * ========================================================= */
+/*
 static inline void RCC_Set_APB1_Clock_To(APB1_DIV_T div) {
 	RCC->CFGR &= ~RCC_CFGR_PPRE1;
 	RCC->CFGR |= div;
@@ -92,13 +205,11 @@ static inline void RCC_Set_PLL_Clock_Source_To_HSE_Div2(void) {
 	SBI(RCC->CFGR, RCC_CFGR_PLLXTPRE);
 }
 
-static inline void RCC_Set_System_Clock_Source_To_HSI_Output(void) { RCC->CFGR |= RCC_CFGR_SW_HSI; }
-static inline void RCC_Set_System_Clock_Source_To_HSE_Output(void) { RCC->CFGR |= RCC_CFGR_SW_HSE; }
-static inline void RCC_Set_System_Clock_Source_To_PLL_Output(void) { RCC->CFGR |= RCC_CFGR_SW_PLL; }
+static inline void RCC_Set_System_Clock_To_HSI_Output(void) { RCC->CFGR |= RCC_CFGR_SW_HSI; }
+static inline void RCC_Set_System_Clock_To_HSE_Output(void) { RCC->CFGR |= RCC_CFGR_SW_HSE; }
+static inline void RCC_Set_System_Clock_To_PLL_Output(void) { RCC->CFGR |= RCC_CFGR_SW_PLL; }
 
-static inline void RCC_Wait_HSI_Ready(void) { while (!(RCC->CR & RCC_CR_HSIRDY)); }
-static inline void RCC_Wait_HSE_Ready(void) { while (!(RCC->CR & RCC_CR_HSERDY)); }
-static inline void RCC_Wait_PLL_Ready(void) { while (!(RCC->CR & RCC_CR_PLLRDY)); }
+
 
 static inline void RCC_Wait_System_Clock_HSI_Ready(void) {
 	while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI);
@@ -140,7 +251,7 @@ static inline void RCC_APB2_Enable_GPIOC(void)  { SBI(RCC->APB2ENR ,RCC_APB2ENR_
 static inline void RCC_APB2_Enable_GPIOD(void)  { SBI(RCC->APB2ENR ,RCC_APB2ENR_IOPDEN);   }
 static inline void RCC_APB2_Enable_GPIOE(void)  { SBI(RCC->APB2ENR ,RCC_APB2ENR_IOPEEN);   }
 static inline void RCC_APB2_Enable_AFIO(void)   { SBI(RCC->APB2ENR ,RCC_APB2ENR_AFIOEN);   }
-
+*/
 
 
 #endif
