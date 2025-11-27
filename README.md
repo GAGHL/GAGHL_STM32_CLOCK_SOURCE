@@ -2,9 +2,9 @@
 
 # GAGHL_STM32_CLOCK_MANAGER
 
-**A lightweight and minimal clock management library for STM32F1 series**
+**A simple register-level clock management library for the STM32F1 series**
 
-GAGHL_STM32_CLOCK_MANAGER is a header-only, C-based library for managing clocks on STM32F10x microcontrollers. It provides easy-to-use functions to configure system clocks, PLL, AHB/APB dividers, and peripheral clocks in a manner similar to ST’s Low-Layer (LL) drivers.
+GAGHL_STM32_CLOCK_MANAGER is a C-based library for managing clocks on STM32F10x microcontrollers. It provides easy-to-use functions to configure system clocks, PLL, AHB/APB dividers, and peripheral clocks in a manner similar to ST’s Low-Layer (LL) drivers.
 
 ## 💡 Browse Online
 You can explore this repository in a VS Code like interface using [this link](https://github1s.com/GAGHL/GAGHL_STM32_CLOCK_MANAGER).
@@ -25,7 +25,7 @@ You can explore this repository in a VS Code like interface using [this link](ht
 | Function                                      | Parameters                                   | Description                                               |
 | --------------------------------------------- | -------------------------------------------- | --------------------------------------------------------- |
 | `PLL_Enable_With_Config()`                    | `PLL_INPUT_SOURCE_T source, PLL_MULL_T mull` | Enable PLL with specified input and multiplication factor |
-| `SystemClock_Config_To_72MHz()`               | *(void)*                                     | Configure system to 72 MHz using HSE + PLL                |
+| `SystemClock_Config_To_72MHz()`               | *(void)*                                     | Configure system to 72 MHz using PLL with (8MHz XTAL)     |
 | `RCC_Set_System_Clock_To_HSI_Output()`        | *(void)*                                     | Switch system clock to HSI                                |
 | `RCC_Set_System_Clock_To_HSE_Output()`        | *(void)*                                     | Switch system clock to HSE                                |
 | `RCC_Set_System_Clock_To_PLL_Output()`        | *(void)*                                     | Switch system clock to PLL                                |
@@ -116,7 +116,7 @@ Under the following terms:
 
 For more information, see the full license: [https://creativecommons.org/licenses/by-nc/4.0/](https://creativecommons.org/licenses/by-nc/4.0/)
 
-© 2025 GAGHL. All rights reserved.
+© 2025 GAGHL
 
 ## Author
 
